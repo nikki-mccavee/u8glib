@@ -1,0 +1,106 @@
+***************
+*** 337,389 ****
+  
+  
+  /* SSD1351 OLED (breakout board from http://www.kickstarter.com/projects/ilsoftltd/colour-oled-breakout-board) */
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_332_sw_spi;
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_332_hw_spi;
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_idx_sw_spi;
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_idx_hw_spi;
+  
+  /* u8g_virtual_screen.c  */
+  extern u8g_dev_t u8g_dev_vs;
+  
+  
+  /*===============================================================*/
+  /* device messages */
+  
+  struct _u8g_dev_arg_pixel_t
+  {
+    u8g_uint_t x, y;              /* will be modified */
+    uint8_t pixel;                  /* will be modified */
+    uint8_t dir;
+    uint8_t color;			/* color or index value */
+    uint8_t hi_color;		/* high byte for 64K color mode, low byte is in "color" */
+  };
+  /* typedef struct _u8g_dev_arg_pixel_t u8g_dev_arg_pixel_t; */ /* forward decl */
+  
+- /* range for r,g,b: 0..255 */
+- #define U8G_GET_HICOLOR_BY_RGB(r,g,b) (((uint16_t)((r)&0x0f8))<<8)|(((uint16_t)((g)&0x0fc))<<3)|(((uint16_t)((b)>>3)))
+- 
+  struct _u8g_dev_arg_bbx_t
+  {
+    u8g_uint_t x, y, w, h;
+  };
+  /* typedef struct _u8g_dev_arg_bbx_t u8g_dev_arg_bbx_t; */ /* forward decl */
+  
+  struct _u8g_box_t
+  {
+    u8g_uint_t x0, y0, x1, y1;
+  };
+  /* typedef struct _u8g_box_t u8g_box_t; */ /* forward decl */
+  
+  struct _u8g_dev_arg_irgb_t
+  {
+    u8g_uint_t idx, r, g, b;		/* index with rgb value */
+  };
+  /* typedef struct _u8g_dev_arg_irgb_t u8g_dev_arg_irgb_t; */ /* forward decl */
+  
+  
+  
+  #define U8G_DEV_MSG_INIT                10
+  #define U8G_DEV_MSG_STOP                  11
+  
+  /* arg: pointer to uint8_t, contranst value between 0 and 255 */
+  #define U8G_DEV_MSG_CONTRAST            15
+--- 337,386 ----
+  
+  
+  /* SSD1351 OLED (breakout board from http://www.kickstarter.com/projects/ilsoftltd/colour-oled-breakout-board) */
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_332_sw_spi;
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_332_hw_spi;
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_idx_sw_spi;
+  extern u8g_dev_t u8g_dev_ssd1351_128x128_idx_hw_spi;
+  
+  /* u8g_virtual_screen.c  */
+  extern u8g_dev_t u8g_dev_vs;
+  
+  
+  /*===============================================================*/
+  /* device messages */
+  
+  struct _u8g_dev_arg_pixel_t
+  {
+    u8g_uint_t x, y;              /* will be modified */
+    uint8_t pixel;                  /* will be modified */
+    uint8_t dir;
+    uint8_t color;			/* color or index value */
+    uint8_t hi_color;		/* high byte for 64K color mode, low byte is in "color" */
+  };
+  /* typedef struct _u8g_dev_arg_pixel_t u8g_dev_arg_pixel_t; */ /* forward decl */
+  
+  struct _u8g_dev_arg_bbx_t
+  {
+    u8g_uint_t x, y, w, h;
+  };
+  /* typedef struct _u8g_dev_arg_bbx_t u8g_dev_arg_bbx_t; */ /* forward decl */
+  
+  struct _u8g_box_t
+  {
+    u8g_uint_t x0, y0, x1, y1;
+  };
+  /* typedef struct _u8g_box_t u8g_box_t; */ /* forward decl */
+  
+  struct _u8g_dev_arg_irgb_t
+  {
+    u8g_uint_t idx, r, g, b;		/* index with rgb value */
+  };
+  /* typedef struct _u8g_dev_arg_irgb_t u8g_dev_arg_irgb_t; */ /* forward decl */
+  
+  
+  
+  #define U8G_DEV_MSG_INIT                10
+  #define U8G_DEV_MSG_STOP                  11
+  
+  /* arg: pointer to uint8_t, contranst value between 0 and 255 */
+  #define U8G_DEV_MSG_CONTRAST            15

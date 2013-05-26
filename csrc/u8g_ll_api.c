@@ -394,11 +394,49 @@ uint8_t u8g_IsBBXIntersection(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, u8g_uint_t
 }
 #endif
 
+/*
+  idx: index for the palette entry (0..255)
+  r: value for red (0..255)
+  g: value for green (0..255)
+  b: value for blue (0..255)
+*/
+void u8g_SetColorEntry(u8g_t *u8g, uint8_t idx, uint8_t r, uint8_t g, uint8_t b)
+{
+  u8g_dev_arg_irgb_t irgb;
+  irgb.idx = idx;
+  irgb.r = r;
+  irgb.g = g;
+  irgb.b = b;  
+  u8g_call_dev_fn(u8g, u8g->dev, U8G_DEV_MSG_SET_COLOR_ENTRY, &irgb);
+}
+
 void u8g_SetColorIndex(u8g_t *u8g, uint8_t idx)
 {
   u8g->arg_pixel.color = idx;
   /*u8g->color_index = idx; */ /* must be removed */
 }
+
+void u8g_SetHiColor(u8g_t *u8g, uint16_t rgb)
+{
+  u8g->arg_pixel.color = rgb&255;
+  u8g->arg_pixel.hi_color = rgb>>8;
+  /*u8g->color_index = idx; */ /* must be removed */
+}
+
+void u8g_SetHiColorByRGB(u8g_t *u8g, uint8_t r, uint8_t g, uint8_t b)
+{
+  
+  r &= ~7;
+  g >>= 2;
+  b >>= 3;
+  u8g->arg_pixel.color = b;
+  u8g->arg_pixel.color |= (g & 7) << 5;
+  u8g->arg_pixel.hi_color = r;
+  u8g->arg_pixel.hi_color |= (g>>3) & 7;
+  
+  //u8g_SetHiColor(u8g, U8G_GET_HICOLOR_BY_RGB(r,g,b));
+}
+
 
 uint8_t u8g_GetColorIndex(u8g_t *u8g)
 {

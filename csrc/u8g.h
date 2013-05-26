@@ -98,6 +98,7 @@ typedef struct _u8g_dev_t u8g_dev_t;
 typedef struct _u8g_dev_arg_pixel_t u8g_dev_arg_pixel_t;
 typedef struct _u8g_dev_arg_bbx_t u8g_dev_arg_bbx_t;
 typedef struct _u8g_box_t u8g_box_t;
+typedef struct _u8g_dev_arg_irgb_t u8g_dev_arg_irgb_t;
 
 
 /*===============================================================*/
@@ -155,6 +156,7 @@ extern u8g_dev_t u8g_dev_sdl_1bit_h;
 extern u8g_dev_t u8g_dev_sdl_2bit;
 extern u8g_dev_t u8g_dev_sdl_2bit_double_mem;
 extern u8g_dev_t u8g_dev_sdl_8bit;
+extern u8g_dev_t u8g_dev_sdl_hicolor;
 int u8g_sdl_get_key(void);
 
 /* Size: 70x30 monochrom, stdout */
@@ -183,6 +185,7 @@ extern u8g_dev_t u8g_dev_st7565_dogm132_hw_spi;
 /* Display: EA DOGM128, Size: 128x64 monochrom */
 extern u8g_dev_t u8g_dev_st7565_dogm128_sw_spi;
 extern u8g_dev_t u8g_dev_st7565_dogm128_hw_spi;
+extern u8g_dev_t u8g_dev_st7565_dogm128_parallel;
 /* Display: Topway LM6063 128x64 */
 extern u8g_dev_t u8g_dev_st7565_lm6063_sw_spi;
 extern u8g_dev_t u8g_dev_st7565_lm6063_hw_spi;
@@ -199,6 +202,11 @@ extern u8g_dev_t u8g_dev_st7565_nhd_c12832_parallel;
 /* Display: Displaytech 64128N */
 extern u8g_dev_t u8g_dev_st7565_64128n_sw_spi;
 extern u8g_dev_t u8g_dev_st7565_64128n_hw_spi;
+extern u8g_dev_t u8g_dev_st7565_64128n_parallel;
+
+/* Display: LCD-AG-C128032R-DIW W/KK E6 PBF */
+extern u8g_dev_t u8g_dev_uc1601_c128032_sw_spi;
+extern u8g_dev_t u8g_dev_uc1601_c128032_hw_spi;
 
 /* dfrobot 128x64 Graphic LCD (SKU:FIT0021) */
 extern u8g_dev_t u8g_dev_st7920_128x64_sw_spi;
@@ -288,11 +296,13 @@ extern u8g_dev_t u8g_dev_ssd1327_96x96_2x_gr_i2c;
 /* NHD-3.12-25664 OLED Display with SSD1322 Controller */
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_bw_sw_spi;
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_bw_hw_spi;
+extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_bw_parallel;
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_bw_sw_spi;
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_bw_hw_spi;
 
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_gr_sw_spi;
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_gr_hw_spi;
+extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_gr_parallel;
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_gr_sw_spi;
 extern u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_gr_hw_spi;
 
@@ -325,6 +335,13 @@ void u8g_SetFlipDiscCallback(u8g_t *u8g, void (*cb)(uint8_t id, uint8_t page, ui
 /* ILI9325D based TFT */
 extern u8g_dev_t u8g_dev_ili9325d_320x240_8bit;
 
+
+/* SSD1351 OLED (breakout board from http://www.kickstarter.com/projects/ilsoftltd/colour-oled-breakout-board) */
+extern u8g_dev_t u8g_dev_ssd1351_128x128_332_sw_spi;
+extern u8g_dev_t u8g_dev_ssd1351_128x128_332_hw_spi;
+extern u8g_dev_t u8g_dev_ssd1351_128x128_idx_sw_spi;
+extern u8g_dev_t u8g_dev_ssd1351_128x128_idx_hw_spi;
+
 /* u8g_virtual_screen.c  */
 extern u8g_dev_t u8g_dev_vs;
 
@@ -337,9 +354,13 @@ struct _u8g_dev_arg_pixel_t
   u8g_uint_t x, y;              /* will be modified */
   uint8_t pixel;                  /* will be modified */
   uint8_t dir;
-  uint8_t color;
+  uint8_t color;			/* color or index value */
+  uint8_t hi_color;		/* high byte for 64K color mode, low byte is in "color" */
 };
 /* typedef struct _u8g_dev_arg_pixel_t u8g_dev_arg_pixel_t; */ /* forward decl */
+
+/* range for r,g,b: 0..255 */
+#define U8G_GET_HICOLOR_BY_RGB(r,g,b) (((uint16_t)((r)&0x0f8))<<8)|(((uint16_t)((g)&0x0fc))<<3)|(((uint16_t)((b)>>3)))
 
 struct _u8g_dev_arg_bbx_t
 {
@@ -352,6 +373,13 @@ struct _u8g_box_t
   u8g_uint_t x0, y0, x1, y1;
 };
 /* typedef struct _u8g_box_t u8g_box_t; */ /* forward decl */
+
+struct _u8g_dev_arg_irgb_t
+{
+  u8g_uint_t idx, r, g, b;		/* index with rgb value */
+};
+/* typedef struct _u8g_dev_arg_irgb_t u8g_dev_arg_irgb_t; */ /* forward decl */
+
 
 
 #define U8G_DEV_MSG_INIT                10
@@ -382,7 +410,7 @@ struct _u8g_box_t
 #define U8G_DEV_MSG_SET_PIXEL                           50
 #define U8G_DEV_MSG_SET_8PIXEL                          59
 
-#define U8G_DEV_MSG_SET_COLOR_INDEX                60
+#define U8G_DEV_MSG_SET_COLOR_ENTRY                60
 
 #define U8G_DEV_MSG_SET_XY_CB                           61
 
@@ -392,15 +420,20 @@ struct _u8g_box_t
 
 /*===============================================================*/
 /* device modes */
-#define U8G_MODE(is_color, bits_per_pixel) (((is_color)<<4)|(bits_per_pixel))
+#define U8G_MODE(is_index_mode, is_color, bits_per_pixel) (((is_index_mode)<<6) | ((is_color)<<5)|(bits_per_pixel))
 
 #define U8G_MODE_UNKNOWN     0
-#define U8G_MODE_BW     U8G_MODE(0, 1)
-#define U8G_MODE_GRAY2BIT     U8G_MODE(0, 2)
-#define U8G_MODE_R3G3B2  U8G_MODE(1, 8)
+#define U8G_MODE_BW     U8G_MODE(0, 0, 1)
+#define U8G_MODE_GRAY2BIT     U8G_MODE(0, 0, 2)
+#define U8G_MODE_R3G3B2  U8G_MODE(0, 1, 8)
+#define U8G_MODE_INDEX  U8G_MODE(1, 1, 8)
+/* hicolor is R5G6B5 */
+#define U8G_MODE_HICOLOR  U8G_MODE(0, 1, 16)
 
-#define U8G_MODE_GET_BITS_PER_PIXEL(mode) ((mode)&15)
-#define U8G_MODE_IS_COLOR(mode) (((mode)&16)==0?0:1)
+
+#define U8G_MODE_GET_BITS_PER_PIXEL(mode) ((mode)&31)
+#define U8G_MODE_IS_COLOR(mode) (((mode)&32)==0?0:1)
+#define U8G_MODE_IS_INDEX_MODE(mode) (((mode)&64)==0?0:1)
 
 
 /*===============================================================*/
@@ -711,6 +744,8 @@ uint8_t u8g_dev_pb8h1f_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *ar
 /* u8g_pb8h8.c */
 uint8_t u8g_dev_pb8h8_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg);
 
+/* u8g_pbxh16.c */
+uint8_t u8g_dev_pbxh16_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg);
 
 
 /*===============================================================*/
@@ -854,7 +889,10 @@ void u8g_DrawPixel(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y);
 void u8g_Draw8Pixel(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_t pixel);
 
 uint8_t u8g_Stop(u8g_t *u8g);
+void u8g_SetColorEntry(u8g_t *u8g, uint8_t idx, uint8_t r, uint8_t g, uint8_t b);
 void u8g_SetColorIndex(u8g_t *u8g, uint8_t idx);
+void u8g_SetHiColor(u8g_t *u8g, uint16_t rgb);
+void u8g_SetHiColorByRGB(u8g_t *u8g, uint8_t r, uint8_t g, uint8_t b);
 uint8_t u8g_GetColorIndex(u8g_t *u8g);
 
 uint8_t u8g_GetDefaultForegroundColor(u8g_t *u8g);
